@@ -1,5 +1,15 @@
 # k8s-gitops-platform
 
+[![CI](https://github.com/filooww/k8s-gitops-platform/actions/workflows/ci.yaml/badge.svg)](https://github.com/filooww/k8s-gitops-platform/actions/workflows/ci.yaml)
+[![IaC scan](https://github.com/filooww/k8s-gitops-platform/actions/workflows/iac-scan.yaml/badge.svg)](https://github.com/filooww/k8s-gitops-platform/actions/workflows/iac-scan.yaml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white)
+![Helm](https://img.shields.io/badge/Helm-0F1689?logo=helm&logoColor=white)
+![Argo CD](https://img.shields.io/badge/Argo%20CD-EF7B4D?logo=argo&logoColor=white)
+![Terraform](https://img.shields.io/badge/Terraform-7B42BC?logo=terraform&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?logo=prometheus&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?logo=grafana&logoColor=white)
+
 A small but **production-shaped** platform that deploys a containerized service to
 Kubernetes the GitOps way, with full observability and a security-gated CI pipeline.
 
