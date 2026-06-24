@@ -1,0 +1,66 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/filooww/k8s-gitops-platform
+  tag: "dev"          # CI bumps this to the commit SHA on every push to main
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: traefik   # k3d ships with Traefik as the default ingress controller
+  host: myapp.localhost
+  path: /
+  pathType: Prefix
+
+# Values injected into the app via env (ConfigMap + Secret).
+config:
+  APP_NAME: "k8s-gitops-demo"
+  APP_VERSION: "0.1.0"
+
+secret:
+  # Demonstrates wiring a Secret into the pod. Override in real deployments.
+  API_TOKEN: "changeme-demo-token"
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 128Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 60
+
+# Prometheus Operator ServiceMonitor (scrapes /metrics).
+serviceMonitor:
+  enabled: true
+  interval: 15s
+  path: /metrics
+
+livenessProbe:
+  path: /health
+readinessProbe:
+  path: /health
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]

@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 560" font-family="-apple-system,Segoe UI,Roboto,sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#5b6470"/>
+    </marker>
+    <style>
+      .box{rx:10;ry:10;stroke-width:1.5}
+      .t{font-size:13px;fill:#1b1f24;font-weight:600}
+      .s{font-size:11px;fill:#5b6470}
+      .lbl{font-size:11px;fill:#5b6470}
+      .edge{stroke:#5b6470;stroke-width:1.5;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="920" height="560" fill="#ffffff"/>
+  <text x="24" y="34" font-size="18" font-weight="700" fill="#1b1f24">k8s-gitops-platform — architecture</text>
+
+  <!-- Dev -->
+  <rect class="box" x="24" y="70" width="150" height="60" fill="#eef2ff" stroke="#6366f1"/>
+  <text class="t" x="40" y="96">Developer</text>
+  <text class="s" x="40" y="114">git push → main</text>
+
+  <!-- GitHub Actions -->
+  <rect class="box" x="24" y="180" width="320" height="170" fill="#f1f5f9" stroke="#0ea5e9"/>
+  <text class="t" x="40" y="204">GitHub Actions (CI)</text>
+  <rect class="box" x="40" y="216" width="130" height="34" fill="#ffffff" stroke="#94a3b8"/>
+  <text class="s" x="50" y="237">pytest</text>
+  <rect class="box" x="180" y="216" width="148" height="34" fill="#ffffff" stroke="#94a3b8"/>
+  <text class="s" x="190" y="237">helm lint / template</text>
+  <rect class="box" x="40" y="258" width="130" height="34" fill="#ffffff" stroke="#94a3b8"/>
+  <text class="s" x="50" y="279">docker build</text>
+  <rect class="box" x="180" y="258" width="148" height="34" fill="#fff7ed" stroke="#f59e0b"/>
+  <text class="s" x="190" y="279">Trivy CVE scan</text>
+  <rect class="box" x="40" y="300" width="130" height="34" fill="#ffffff" stroke="#94a3b8"/>
+  <text class="s" x="50" y="321">push → GHCR</text>
+  <rect class="box" x="180" y="300" width="148" height="34" fill="#ecfdf5" stroke="#10b981"/>
+  <text class="s" x="190" y="321">bump tag → git</text>
+
+  <!-- Git repo -->
+  <rect class="box" x="400" y="180" width="150" height="60" fill="#eef2ff" stroke="#6366f1"/>
+  <text class="t" x="416" y="206">Git repo</text>
+  <text class="s" x="416" y="224">charts/ + argocd/</text>
+
+  <!-- GHCR -->
+  <rect class="box" x="400" y="290" width="150" height="60" fill="#f1f5f9" stroke="#0ea5e9"/>
+  <text class="t" x="416" y="316">GHCR</text>
+  <text class="s" x="416" y="334">container image</text>
+
+  <!-- ArgoCD -->
+  <rect class="box" x="600" y="180" width="150" height="60" fill="#fdf2f8" stroke="#db2777"/>
+  <text class="t" x="616" y="206">ArgoCD</text>
+  <text class="s" x="616" y="224">app-of-apps, sync</text>
+
+  <!-- Cluster -->
+  <rect class="box" x="560" y="280" width="336" height="250" fill="#f8fafc" stroke="#64748b" stroke-dasharray="5 4"/>
+  <text class="t" x="576" y="304">Kubernetes (k3d / k3s-on-EC2)</text>
+
+  <rect class="box" x="576" y="318" width="150" height="74" fill="#ecfdf5" stroke="#10b981"/>
+  <text class="t" x="590" y="340">myapp</text>
+  <text class="s" x="590" y="358">Deployment + HPA</text>
+  <text class="s" x="590" y="374">Service / Ingress</text>
+
+  <rect class="box" x="740" y="318" width="140" height="74" fill="#fff7ed" stroke="#f59e0b"/>
+  <text class="t" x="754" y="340">Prometheus</text>
+  <text class="s" x="754" y="358">scrapes /metrics</text>
+  <text class="s" x="754" y="374">via ServiceMonitor</text>
+
+  <rect class="box" x="576" y="410" width="150" height="60" fill="#eff6ff" stroke="#3b82f6"/>
+  <text class="t" x="590" y="434">Ingress (Traefik)</text>
+  <text class="s" x="590" y="452">myapp.localhost</text>
+
+  <rect class="box" x="740" y="410" width="140" height="60" fill="#fef2f2" stroke="#ef4444"/>
+  <text class="t" x="754" y="434">Grafana</text>
+  <text class="s" x="754" y="452">dashboards + alerts</text>
+
+  <!-- edges -->
+  <path class="edge" d="M99,130 L99,180"/>
+  <path class="edge" d="M344,210 L400,210"/>             <!-- CI -> git (bump) -->
+  <path class="edge" d="M344,317 L400,317"/>             <!-- CI -> GHCR -->
+  <path class="edge" d="M550,210 L600,210"/>             <!-- git -> argocd -->
+  <path class="edge" d="M675,240 L660,318"/>             <!-- argocd -> app -->
+  <path class="edge" d="M550,320 C560,360 540,360 651,330" />  <!-- GHCR -> cluster pull -->
+  <path class="edge" d="M726,355 L740,355"/>             <!-- app -> prometheus -->
+  <path class="edge" d="M810,392 L810,410"/>             <!-- prometheus -> grafana -->
+  <text class="lbl" x="350" y="200">bump</text>
+  <text class="lbl" x="555" y="200">watch/sync</text>
+  <text class="lbl" x="565" y="372">pull image</text>
+</svg>

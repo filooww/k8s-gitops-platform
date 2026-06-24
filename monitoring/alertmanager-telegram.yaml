@@ -1,0 +1,46 @@
+# Alertmanager → Telegram overlay for kube-prometheus-stack.
+#
+# Apply on TOP of monitoring/values.yaml:
+#   helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+#     --version 87.2.0 -n monitoring \
+#     -f monitoring/values.yaml -f monitoring/alertmanager-telegram.yaml
+#
+# Get a bot token from @BotFather, and your chat id from @userinfobot, then
+# either edit the two placeholders below or override them at install time:
+#   --set-string 'alertmanager.config.receivers[1].telegram_configs[0].bot_token=123:ABC' \
+#   --set        'alertmanager.config.receivers[1].telegram_configs[0].chat_id=987654321'
+#
+# (Keep real tokens out of git — copy this to *.local.yaml, which is gitignored.)
+
+alertmanager:
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      receiver: "null"            # default sink for noisy infra alerts
+      group_by: ["alertname", "namespace", "severity"]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      routes:
+        - receiver: telegram      # send everything coming from the myapp namespace
+          matchers:
+            - namespace = "myapp"
+          continue: false
+        - receiver: telegram      # and anything critical, cluster-wide
+          matchers:
+            - severity = "critical"
+          repeat_interval: 1h
+    receivers:
+      - name: "null"
+      - name: telegram
+        telegram_configs:
+          - bot_token: "REPLACE_WITH_BOTFATHER_TOKEN"
+            chat_id: 123456789
+            parse_mode: HTML
+            send_resolved: true
+            message: |
+              <b>{{ .Status | toUpper }}</b> · {{ .CommonLabels.alertname }} ({{ .CommonLabels.severity }})
+              {{ range .Alerts }}{{ .Annotations.summary }}
+              {{ .Annotations.description }}
+              {{ end }}

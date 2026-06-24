@@ -1,0 +1,29 @@
+# App-of-apps: this single Application manages every other Application in
+# argocd/apps/. Apply it once, and ArgoCD discovers + syncs the rest.
+#
+#   kubectl apply -f argocd/root-app.yaml
+#
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/filooww/k8s-gitops-platform
+    targetRevision: main
+    path: argocd/apps
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,20 @@
+# AppProject groups the platform's Applications and scopes what they may deploy.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  description: k8s-gitops-platform applications
+  sourceRepos:
+    - "https://github.com/filooww/k8s-gitops-platform"
+    - "https://prometheus-community.github.io/helm-charts"
+  destinations:
+    - namespace: "*"
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

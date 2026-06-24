@@ -1,0 +1,46 @@
+{{- if .Values.serviceMonitor.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "myapp.fullname" . }}
+  labels:
+    release: monitoring   # picked up by the Prometheus Operator
+    {{- include "myapp.labels" . | nindent 4 }}
+spec:
+  groups:
+    - name: myapp.rules
+      rules:
+        - alert: MyappTargetDown
+          expr: up{namespace="{{ .Release.Namespace }}"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "myapp target down"
+            description: "A myapp pod has been unscrapeable for 2m ({{`{{ $labels.instance }}`}})."
+
+        - alert: MyappHighErrorRate
+          expr: |
+            sum(rate(http_requests_total{namespace="{{ .Release.Namespace }}",status=~"5.."}[5m]))
+            /
+            clamp_min(sum(rate(http_requests_total{namespace="{{ .Release.Namespace }}"}[5m])), 1)
+            > 0.05
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "myapp 5xx error rate > 5%"
+            description: "5xx error ratio is {{`{{ $value | humanizePercentage }}`}} over the last 5m."
+
+        - alert: MyappHighLatencyP95
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(http_request_duration_seconds_bucket{namespace="{{ .Release.Namespace }}"}[5m])) by (le)
+            ) > 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "myapp p95 latency > 1s"
+            description: "p95 request latency is {{`{{ $value | humanizeDuration }}`}} over the last 5m."
+{{- end }}

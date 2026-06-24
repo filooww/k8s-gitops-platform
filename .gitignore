@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+!example.tfvars
+.terraform.lock.hcl
+
+# Helm
+charts/**/charts/
+*.tgz
+
+# Kube / secrets
+kubeconfig*
+*.kubeconfig
+.env
+*.pem
+*.key
+
+# Local secret overlays (real Telegram tokens etc.)
+*.local.yaml
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
