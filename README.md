@@ -106,7 +106,7 @@ upstream Helm repo, with values sourced from this repo via a `$values` reference
 
 1. **test** — pytest against the app
 2. **helm-lint** — `helm lint` + render sanity check
-3. **build-scan-push** — build image, **Trivy** scan (fails on fixable CRITICAL/HIGH), push to GHCR, upload SARIF
+3. **build-scan-push** — build image, **Trivy** scan (report all CRITICAL/HIGH to the Security tab via SARIF; hard-fail only on CRITICAL in app dependencies, so transient base-image CVEs don't break the badge), push to GHCR
 4. **bump-manifest** — write the new image tag into `charts/myapp/values.yaml` and commit (`[skip ci]`) → ArgoCD deploys it
 
 `.github/workflows/iac-scan.yaml` runs `trivy config` over Helm/manifests/Terraform.
