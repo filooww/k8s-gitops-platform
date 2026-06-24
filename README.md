@@ -1,7 +1,7 @@
 # k8s-gitops-platform
 
-[![CI](https://github.com/filooww/k8s-gitops-platform/actions/workflows/ci.yaml/badge.svg)](https://github.com/filooww/k8s-gitops-platform/actions/workflows/ci.yaml)
-[![IaC scan](https://github.com/filooww/k8s-gitops-platform/actions/workflows/iac-scan.yaml/badge.svg)](https://github.com/filooww/k8s-gitops-platform/actions/workflows/iac-scan.yaml)
+[![CI](https://github.com/filooww/k8s-gitops-platform/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/filooww/k8s-gitops-platform/actions/workflows/ci.yaml)
+[![IaC scan](https://github.com/filooww/k8s-gitops-platform/actions/workflows/iac-scan.yaml/badge.svg?branch=main)](https://github.com/filooww/k8s-gitops-platform/actions/workflows/iac-scan.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white)
 ![Helm](https://img.shields.io/badge/Helm-0F1689?logo=helm&logoColor=white)
