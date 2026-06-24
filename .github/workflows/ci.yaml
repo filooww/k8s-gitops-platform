@@ -88,7 +88,7 @@ jobs:
           sarif_file: trivy-results.sarif
 
       # Hard gate: fail only on CRITICAL vulns in our own app dependencies
-      # (pkg-types library) — these are in our control and rare, so the badge
+      # (vuln-type library). Those are in our control and rare, so the badge
       # stays green while a real gate still protects the supply chain.
       - name: Trivy gate (block on CRITICAL app-dependency CVEs)
         uses: aquasecurity/trivy-action@v0.36.0

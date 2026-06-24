@@ -10,12 +10,13 @@
 ![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?logo=prometheus&logoColor=white)
 ![Grafana](https://img.shields.io/badge/Grafana-F46800?logo=grafana&logoColor=white)
 
-A small but **production-shaped** platform that deploys a containerized service to
-Kubernetes the GitOps way, with full observability and a security-gated CI pipeline.
+Deploys a FastAPI service to Kubernetes using GitOps, with Prometheus/Grafana
+monitoring and a CI pipeline that scans images before they ship.
 
-Push to `main` → CI builds, scans and publishes the image, then bumps the image
-tag in git → **ArgoCD** notices the change and syncs the cluster. No `kubectl apply`
-from the pipeline; git is the single source of truth.
+When you push to `main`, CI builds the image, scans it, pushes it to GHCR, and
+writes the new tag into the Helm values. ArgoCD notices the commit and syncs the
+cluster. The pipeline itself never touches the cluster with `kubectl`; everything
+goes through git.
 
 ![architecture](docs/architecture.svg)
 
@@ -45,7 +46,7 @@ terraform/           k3s-on-EC2 module (Spot) for a cloud deployment
 Makefile             one-command local stack
 ```
 
-## Quickstart — local (k3d)
+## Local quickstart (k3d)
 
 Requires Docker, `kubectl`, `helm`, `k3d`.
 
@@ -69,23 +70,24 @@ cool-down.
 
 ### Verified working
 
-Everything below was exercised end-to-end on a local k3d cluster:
+I ran all of this on a local k3d cluster:
 
-- both app pods scraped by Prometheus (`http://…:8000/metrics`, target **health=up**)
-- `http_requests_total` / latency histograms queryable in Prometheus
-- Grafana auto-loads the **myapp / FastAPI service** dashboard via the sidecar
+- both app pods scraped by Prometheus (`http://…:8000/metrics`, target `health=up`)
+- `http_requests_total` and the latency histograms are queryable in Prometheus
+- Grafana auto-loads the "myapp / FastAPI service" dashboard via the sidecar
 - HPA reads CPU from metrics-server and scales 2 → 6 → 2 around the k6 load (below)
 
-The bundled Grafana dashboard during a `make k6` run — request rate, p95/p50
-latency, 0% error rate, in-flight requests, and the HPA scaling 2 → 6 → 2:
+The bundled Grafana dashboard during a `make k6` run. It shows request rate,
+p95/p50 latency, a 0% error rate, in-flight requests, and the HPA scaling 2 → 6 → 2:
 
 ![grafana dashboard](docs/grafana-dashboard.png)
 
 ## Alerting (Telegram)
 
-`charts/myapp` ships a **PrometheusRule** (`MyappTargetDown`, `MyappHighErrorRate`,
-`MyappHighLatencyP95`) — verified loaded into Prometheus and evaluating. To route
-firing alerts to Telegram, install the monitoring stack with the overlay:
+`charts/myapp` ships a `PrometheusRule` with three alerts (`MyappTargetDown`,
+`MyappHighErrorRate`, `MyappHighLatencyP95`); they load into Prometheus and
+evaluate. To route firing alerts to Telegram, install the monitoring stack with
+the overlay:
 
 ```bash
 # put your @BotFather token + chat id in monitoring/alertmanager-telegram.yaml
@@ -97,7 +99,7 @@ the `myapp` namespace plus any `severity: critical` alert to your chat.
 
 ## The GitOps loop (real cluster)
 
-The Helm quickstart above is the fast path. To run the **actual GitOps flow**:
+The Helm quickstart above is the fast path. To run the full GitOps flow:
 
 ```bash
 make argocd           # install ArgoCD + apply the app-of-apps root
@@ -114,10 +116,10 @@ upstream Helm repo, with values sourced from this repo via a `$values` reference
 
 `.github/workflows/ci.yaml` on push to `main`:
 
-1. **test** — pytest against the app
-2. **helm-lint** — `helm lint` + render sanity check
-3. **build-scan-push** — build image, **Trivy** scan (report all CRITICAL/HIGH to the Security tab via SARIF; hard-fail only on CRITICAL in app dependencies, so transient base-image CVEs don't break the badge), push to GHCR
-4. **bump-manifest** — write the new image tag into `charts/myapp/values.yaml` and commit (`[skip ci]`) → ArgoCD deploys it
+1. `test` runs pytest against the app.
+2. `helm-lint` runs `helm lint` plus a render check.
+3. `build-scan-push` builds the image, scans it with Trivy, and pushes to GHCR. All CRITICAL/HIGH findings go to the Security tab as SARIF, but only a CRITICAL in our own dependencies fails the build, so a transient base-image CVE won't flip the badge red.
+4. `bump-manifest` writes the new image tag into `charts/myapp/values.yaml` and commits it with `[skip ci]`, which ArgoCD then deploys.
 
 `.github/workflows/iac-scan.yaml` runs `trivy config` over Helm/manifests/Terraform.
 

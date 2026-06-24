@@ -10,7 +10,7 @@
 #   --set-string 'alertmanager.config.receivers[1].telegram_configs[0].bot_token=123:ABC' \
 #   --set        'alertmanager.config.receivers[1].telegram_configs[0].chat_id=987654321'
 #
-# (Keep real tokens out of git — copy this to *.local.yaml, which is gitignored.)
+# (Keep real tokens out of git: copy this to *.local.yaml, which is gitignored.)
 
 alertmanager:
   config:

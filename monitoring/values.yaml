@@ -19,7 +19,7 @@ prometheus:
         memory: 600Mi
 
 grafana:
-  adminPassword: admin            # demo only — change for any real use
+  adminPassword: admin            # demo only, change before real use
   defaultDashboardsTimezone: browser
   # Auto-load dashboards from ConfigMaps labelled grafana_dashboard=1.
   sidecar:
