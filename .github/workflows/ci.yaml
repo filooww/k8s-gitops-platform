@@ -134,8 +134,8 @@ jobs:
           NEW_TAG: ${{ needs.build-scan-push.outputs.sha }}
         run: |
           sed -i -E "s/^(\s*tag:\s*).*/\1\"${NEW_TAG}\"/" charts/myapp/values.yaml
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name  "filooww"
+          git config user.email "vanapawlenco25@gmail.com"
           if git diff --quiet; then
             echo "No tag change."
           else
