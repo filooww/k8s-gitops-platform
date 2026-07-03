@@ -25,7 +25,8 @@ goes through git.
 | Area              | Tech                                                                 |
 | ----------------- | ------------------------------------------------------------------- |
 | Containerization  | Multi-stage **Dockerfile**, non-root, read-only rootfs, healthcheck |
-| Packaging         | **Helm** chart (Deployment, Service, Ingress, HPA, ConfigMap, Secret, ServiceMonitor, PrometheusRule) |
+| Packaging         | **Helm** chart (Deployment, Service, Ingress, HPA, ConfigMap, SealedSecret, ServiceMonitor, PrometheusRule) |
+| Secrets           | **Sealed Secrets** (Bitnami) — ciphertext committed to git, decrypted in-cluster; no plaintext secrets in the repo |
 | GitOps            | **ArgoCD** app-of-apps, automated sync + self-heal, Helm multi-source |
 | Observability     | **Prometheus** scrape via ServiceMonitor, **Grafana** dashboard, **Alertmanager → Telegram** |
 | Autoscaling       | **HPA** v2 on CPU, driven by metrics-server; **k6** ramping load test |
@@ -40,7 +41,7 @@ app/                 FastAPI service exposing /metrics, /health, /work  + Docker
 charts/myapp/        Helm chart for the app (+ bundled Grafana dashboard + PrometheusRule)
 monitoring/          kube-prometheus-stack values + Alertmanager→Telegram overlay
 loadtest/            k6 ramping load test that drives the HPA
-argocd/              AppProject + app-of-apps root + Applications (myapp, monitoring)
+argocd/              AppProject + app-of-apps root + Applications (myapp, monitoring, sealed-secrets)
 terraform/           k3s-on-EC2 module (Spot) for a cloud deployment
 .github/workflows/   ci.yaml (build/scan/push/bump) + iac-scan.yaml (Trivy config)
 Makefile             one-command local stack
@@ -81,6 +82,32 @@ The bundled Grafana dashboard during a `make k6` run. It shows request rate,
 p95/p50 latency, a 0% error rate, in-flight requests, and the HPA scaling 2 → 6 → 2:
 
 ![grafana dashboard](docs/grafana-dashboard.png)
+
+## Secrets management (Sealed Secrets)
+
+`charts/myapp` used to ship a plain `Secret` with the value sitting in
+`values.yaml` — fine for a demo, not something you'd want in a real repo.
+It's now a [`SealedSecret`](https://github.com/bitnami-labs/sealed-secrets):
+`values.yaml` holds ciphertext (`sealedSecret.encryptedData`), and the
+[Bitnami Sealed Secrets controller](argocd/apps/sealed-secrets.yaml) —
+itself deployed via ArgoCD, one sync-wave ahead of `myapp` so its CRD
+exists first — decrypts it in-cluster into the real `Secret` the pod reads
+via `envFrom`. The ciphertext is bound to the controller's private key
+*and* to the target namespace+name, so it's useless outside this specific
+cluster; only the running controller can turn it back into a value.
+
+To add or rotate a secret:
+
+```bash
+make sealed-secrets                              # install the controller (make bootstrap does this too)
+make seal KEY=API_TOKEN VALUE=supersecret        # prints ciphertext for this cluster's controller
+# paste the output into charts/myapp/values.yaml under sealedSecret.encryptedData
+```
+
+I verified the round trip on a live cluster before committing: sealed a
+value with `kubeseal --raw`, applied it as a real `SealedSecret`, and
+confirmed `kubectl get secret ... | base64 -d` returned the exact
+plaintext back out.
 
 ## Alerting (Telegram)
 
