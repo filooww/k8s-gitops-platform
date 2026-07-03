@@ -2,7 +2,7 @@ CLUSTER ?= gitops
 IMAGE   ?= k8s-gitops-demo:dev
 
 .PHONY: help cluster-up image deploy-local argocd monitoring bootstrap \
-        urls grafana-pw load k6 clean
+        sealed-secrets seal urls grafana-pw load k6 clean
 
 BASE_URL ?= http://myapp.localhost:8080
 
@@ -30,7 +30,21 @@ monitoring-telegram: ## Install/upgrade monitoring with the Telegram alert overl
 	  --version 87.2.0 -n monitoring --create-namespace \
 	  -f monitoring/values.yaml -f monitoring/alertmanager-telegram.yaml --wait
 
-deploy-local: ## Deploy the app chart with the locally-built image
+sealed-secrets: ## Install the Sealed Secrets controller via Helm
+	helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
+	helm repo update
+	helm upgrade --install sealed-secrets sealed-secrets/sealed-secrets \
+	  --version 2.16.2 -n kube-system \
+	  --set fullnameOverride=sealed-secrets-controller --wait
+
+seal: ## Print a ciphertext for values.yaml (usage: make seal KEY=API_TOKEN VALUE=supersecret)
+	@test -n "$(KEY)" && test -n "$(VALUE)" || { echo "usage: make seal KEY=... VALUE=..."; exit 1; }
+	@printf '%s' "$(VALUE)" | kubeseal --raw --scope strict \
+	  --controller-name sealed-secrets-controller --controller-namespace kube-system \
+	  --name myapp-myapp-secret --namespace myapp
+	@echo
+
+deploy-local: sealed-secrets ## Deploy the app chart with the locally-built image
 	helm upgrade --install myapp charts/myapp -n myapp --create-namespace \
 	  --set image.repository=k8s-gitops-demo --set image.tag=dev \
 	  --set image.pullPolicy=Never --wait

@@ -25,9 +25,12 @@ config:
   APP_NAME: "k8s-gitops-demo"
   APP_VERSION: "0.1.0"
 
-secret:
-  # Demonstrates wiring a Secret into the pod. Override in real deployments.
-  API_TOKEN: "changeme-demo-token"
+sealedSecret:
+  # Ciphertext only — safe to commit. Produced by `make seal KEY=API_TOKEN
+  # VALUE=...` against this cluster's sealed-secrets controller; only that
+  # controller's in-cluster private key can turn it back into a real value.
+  encryptedData:
+    API_TOKEN: "PLACEHOLDER-run-make-seal-to-generate-a-real-value"
 
 resources:
   requests:

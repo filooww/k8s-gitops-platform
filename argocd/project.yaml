@@ -9,6 +9,7 @@ spec:
   sourceRepos:
     - "https://github.com/filooww/k8s-gitops-platform"
     - "https://prometheus-community.github.io/helm-charts"
+    - "https://bitnami-labs.github.io/sealed-secrets"
   destinations:
     - namespace: "*"
       server: https://kubernetes.default.svc
