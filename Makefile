@@ -31,10 +31,10 @@ monitoring-telegram: ## Install/upgrade monitoring with the Telegram alert overl
 	  -f monitoring/values.yaml -f monitoring/alertmanager-telegram.yaml --wait
 
 sealed-secrets: ## Install the Sealed Secrets controller via Helm
-	helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
+	helm repo add sealed-secrets https://bitnami.github.io/sealed-secrets
 	helm repo update
 	helm upgrade --install sealed-secrets sealed-secrets/sealed-secrets \
-	  --version 2.16.2 -n kube-system \
+	  --version 2.18.6 -n kube-system \
 	  --set fullnameOverride=sealed-secrets-controller --wait
 
 seal: ## Print a ciphertext for values.yaml (usage: make seal KEY=API_TOKEN VALUE=supersecret)
