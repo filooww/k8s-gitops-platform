@@ -5,7 +5,6 @@ metadata:
   name: {{ include "myapp.fullname" . }}
   labels:
     {{- include "myapp.labels" . | nindent 4 }}
-    # kube-prometheus-stack selects ServiceMonitors with this label by default.
     release: monitoring
 spec:
   selector:
