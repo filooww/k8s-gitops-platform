@@ -1,15 +1,3 @@
-"""
-Demo FastAPI service for the k8s-gitops-platform project.
-
-Exposes:
-  GET /            - root, returns service metadata
-  GET /health      - liveness/readiness probe target
-  GET /work        - simulates CPU work (used to trigger the HPA under load)
-  GET /metrics     - Prometheus metrics (request count, latency histogram, in-flight)
-
-All HTTP requests are instrumented via middleware, so every endpoint feeds
-the Prometheus histogram that the Grafana dashboard graphs.
-"""
 import math
 import os
 import time
@@ -28,7 +16,6 @@ APP_NAME = os.getenv("APP_NAME", "k8s-gitops-demo")
 
 app = FastAPI(title=APP_NAME, version=APP_VERSION)
 
-# ---- Prometheus metrics -----------------------------------------------------
 REQUESTS = Counter(
     "http_requests_total",
     "Total HTTP requests",
@@ -48,7 +35,6 @@ IN_FLIGHT = Gauge(
 
 @app.middleware("http")
 async def prometheus_middleware(request: Request, call_next):
-    # Use the route template (not the raw path) to keep label cardinality low.
     path = request.scope.get("route").path if request.scope.get("route") else request.url.path
     IN_FLIGHT.inc()
     start = time.perf_counter()
