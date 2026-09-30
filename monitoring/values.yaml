@@ -1,10 +1,5 @@
-# Values for the kube-prometheus-stack Helm chart (installed as release "monitoring").
-# Tuned to run comfortably inside a local k3d cluster.
-
 fullnameOverride: monitoring
 
-# Scrape ANY ServiceMonitor/PodMonitor in the cluster, not only those whose
-# `release` label matches. Makes the app's ServiceMonitor discoverable.
 prometheus:
   prometheusSpec:
     serviceMonitorSelectorNilUsesHelmValues: false
@@ -19,9 +14,8 @@ prometheus:
         memory: 600Mi
 
 grafana:
-  adminPassword: admin            # demo only, change before real use
+  adminPassword: admin      
   defaultDashboardsTimezone: browser
-  # Auto-load dashboards from ConfigMaps labelled grafana_dashboard=1.
   sidecar:
     dashboards:
       enabled: true
@@ -32,7 +26,6 @@ grafana:
       cpu: 50m
       memory: 128Mi
 
-# Trim components that are noisy/unnecessary on a single-node local cluster.
 alertmanager:
   enabled: true
 kubeEtcd:
