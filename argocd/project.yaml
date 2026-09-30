@@ -1,4 +1,3 @@
-# AppProject groups the platform's Applications and scopes what they may deploy.
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
