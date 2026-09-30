@@ -1,5 +1,4 @@
 {{- if .Values.serviceMonitor.enabled -}}
-# Picked up automatically by the Grafana sidecar (label grafana_dashboard=1).
 apiVersion: v1
 kind: ConfigMap
 metadata:
