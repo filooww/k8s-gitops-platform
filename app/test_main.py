@@ -1,4 +1,3 @@
-"""Minimal smoke tests so the CI pipeline has something to run before building."""
 from fastapi.testclient import TestClient
 
 from main import app
@@ -19,7 +18,7 @@ def test_health():
 
 
 def test_metrics_exposes_prometheus():
-    client.get("/health")  # generate at least one sample
+    client.get("/health") 
     r = client.get("/metrics")
     assert r.status_code == 200
     assert "http_requests_total" in r.text
