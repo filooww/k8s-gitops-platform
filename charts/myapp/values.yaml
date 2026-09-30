@@ -15,20 +15,16 @@ service:
 
 ingress:
   enabled: true
-  className: traefik   # k3d ships with Traefik as the default ingress controller
+  className: traefik   
   host: myapp.localhost
   path: /
   pathType: Prefix
 
-# Values injected into the app via env (ConfigMap + Secret).
 config:
   APP_NAME: "k8s-gitops-demo"
   APP_VERSION: "0.1.0"
 
 sealedSecret:
-  # Ciphertext only — safe to commit. Produced by `make seal KEY=API_TOKEN
-  # VALUE=...` against this cluster's sealed-secrets controller; only that
-  # controller's in-cluster private key can turn it back into a real value.
   encryptedData:
     API_TOKEN: "AgBlJEyg2EfoT3D1NX3c8WuAnGLk/OK/eXpx0OILd4YoV1XR5MU7s7WxvDhq9AeUBKlrLDilvYE79wRApmUXVNg/4CjNvo5tXq+4rwOs6t4HWjWluXTebewVduJUkcUQKXivUBpodoXbdkT6FIr3mOFxo4SlIvAYe9XKyuKTqmG7lYRWJY9XdqMZ/2RucQIYYYRHYVC97ALlppgzRCkqbgEjVx9FsiZesNyPtZmvneijK178wcRhgYI15tABHFaPY8CNAsj30EhGZgRw6G7b4J/qpzmH4HgAhi8jd2RfDC+sQRAIueNaUoE8Yykqznf1jV8aPktmqBweUA+G8cEnPh6/KY6aSEfrYoU8r3F+ujGMOQBbPfmPP7AeL7d9mAyHTdtZPGdHFw4fGF5MGR7BnUdJjOWQ9CvgD94qpoLWMn0L0AuZPyJ5PcrfE7GY5nG65Izer4bFdSpZN7zjh8oXHhEww4GFzjEK6iuukbrNJGT25R2mscx0PEnw9uJrdM13yo+yZDaOahJX9cBMXSUvcuyE7X4RlnYXlcBPTObvkSCsQEe38BpCjrnth6Qzl+OMuI4+dNjR02faJgz259MoSeyYtvQVVsgTR/yJmfmKUuG4BagU2jpk6yty26BjiTTinnO1g/wuvS+EmhUc+1KEyhOR8ITA122jILIMd1hXGsUJaeSn1yg+O1X7yYeWTpuIsMhBOWryFPCNqC0PGqNZho7tMuaGevDZ9hb1jQwfdDCCb8M="
 
@@ -46,7 +42,6 @@ autoscaling:
   maxReplicas: 6
   targetCPUUtilizationPercentage: 60
 
-# Prometheus Operator ServiceMonitor (scrapes /metrics).
 serviceMonitor:
   enabled: true
   interval: 15s
