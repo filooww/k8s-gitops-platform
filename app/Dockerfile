@@ -1,4 +1,3 @@
-# ---- build stage: install deps into a venv -------------------------------
 FROM python:3.12-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -9,18 +8,15 @@ WORKDIR /app
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy only requirements first so this layer is cached unless deps change.
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# ---- runtime stage: minimal image, non-root ------------------------------
 FROM python:3.12-slim AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH"
 
-# Create an unprivileged user to run the app (no shell, no home writes).
 RUN groupadd --system app && useradd --system --gid app --no-create-home app
 
 WORKDIR /app
